@@ -39,7 +39,7 @@ object ChatService {
     fun addMessage(userId: Long, chatId: Long, text: String): Long {
         val chat = getById(userId, chatId)
         if (!chat.isDelete) {
-            val directId = when(userId){
+            val directId = when (userId) {
                 chat.creatorId -> chat.secondUserId
                 chat.secondUserId -> chat.creatorId
                 else -> throw ChatServiceException("Incorrect user id $userId")
@@ -48,9 +48,9 @@ object ChatService {
         } else throw ChatServiceException("You cannot add a message from a deleted chat")
     }
 
-    fun editMessage(userId: Long, messageId :Long, newText: String) {
+    fun editMessage(userId: Long, messageId: Long, newText: String) {
         val message = messageService.getById(messageId)
-        if(!message.isDelete) {
+        if (!message.isDelete) {
             val chat = getById(userId, message.chatId)
             if (!chat.isDelete) {
                 messageService.edit(message.copy(text = newText))
@@ -71,6 +71,7 @@ object ChatService {
 
     fun getUnreadChatsCount(userId: Long): Int {
         return chats
+            .asSequence()
             .filter { it.creatorId == userId || it.secondUserId == userId }
             .filter { !it.isDelete }
             .count { messageService.getUnreadMessagesCount(userId, it.id) > 0 }
@@ -92,7 +93,7 @@ object ChatService {
         return messageService.getUnreadMessages(userId, chat.id, lastMsgId, quantity)
     }
 
-    fun getAllMessages(userId: Long, chatId: Long): List<ChatMessage>{
+    fun getAllMessages(userId: Long, chatId: Long): List<ChatMessage> {
         val chat = chats
             .filter { it.creatorId == userId || it.secondUserId == userId }
             .filter { !it.isDelete }

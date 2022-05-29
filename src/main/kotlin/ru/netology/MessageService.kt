@@ -47,32 +47,35 @@ object MessageService : CrudService<ChatMessage> {
         }
     }
 
-    fun getUnreadMessagesCount(userId: Long, chatId: Long): Int{
+    fun getUnreadMessagesCount(userId: Long, chatId: Long): Int {
         return messages
+            .asSequence()
             .filter { it.chatId == chatId }
             .filter { it.directId == userId }
             .filter { !it.isDelete }
             .count { !it.isRead }
     }
 
-    fun getUnreadMessages(userId: Long, chatId: Long, lastMsgId: Long, quantity: Int): List<ChatMessage>{
+    fun getUnreadMessages(userId: Long, chatId: Long, lastMsgId: Long, quantity: Int): List<ChatMessage> {
         val unreadMessages = messages
+            .asSequence()
             .filter { it.chatId == chatId }
             .filter { it.directId == userId }
             .filter { !it.isDelete }
             .filter { !it.isRead }
             .filter { it.id > lastMsgId }
             .take(quantity)
+            .toList()
         unreadMessages.forEach { setAsRead(it.id) }
         return unreadMessages
     }
 
-    private fun setAsRead(id: Long){
+    private fun setAsRead(id: Long) {
         val message = getById(id)
         edit(message.copy(isRead = true))
     }
 
-    fun getMessagesCount(userId: Long, chatId: Long): Int{
+    fun getMessagesCount(userId: Long, chatId: Long): Int {
         return messages
             .filter { it.chatId == chatId }
             .count { !it.isDelete }
