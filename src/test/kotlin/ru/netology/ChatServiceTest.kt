@@ -37,6 +37,18 @@ class ChatServiceTest {
     }
 
     @Test(expected = ChatServiceException::class)
+    fun delete_notAccess() {
+        val service = ChatService.clean()
+
+        val userId = 1L
+        val interlocutorId = 2L
+        val outsiderId = 23356L
+        val messageText = "Привет, давай общаться!"
+        val (chatId, _) = service.add(userId, interlocutorId, messageText)
+        service.delete(outsiderId, chatId)
+    }
+
+    @Test(expected = ChatServiceException::class)
     fun delete_badChatId() {
         val service = ChatService.clean()
 
@@ -62,6 +74,18 @@ class ChatServiceTest {
         assertTrue(chat.creatorId == userId)
         assertTrue(chat.secondUserId == interlocutorId)
         assertFalse(chat.isDelete)
+    }
+
+    @Test(expected = ChatServiceException::class)
+    fun getById_badChatId() {
+        val service = ChatService.clean()
+
+        val userId = 1L
+        val interlocutorId = 2L
+        val messageText = "Привет, давай общаться!"
+        val (chatId, _) = service.add(userId, interlocutorId, messageText)
+        val badChatId = 100500L
+        service.getById(userId, badChatId)
     }
 
     @Test
